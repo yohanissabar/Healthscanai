@@ -1,0 +1,41 @@
+
+{
+
+  "name": "HealthScanAI - Ultimate Biometric Interface",
+
+  "short_name": "HealthScanAI",
+
+  "start_url": "./index.html",
+
+  "display": "standalone",
+
+  "background_color": "#020617",
+
+  "theme_color": "#020617",
+
+  "icons": [
+
+    {
+
+      "src": "icon-192.png",
+
+      "sizes": "192x192",
+
+      "type": "image/png"
+
+    },
+
+    {
+
+      "src": "icon-512.png",
+
+      "sizes": "512x512",
+
+      "type": "image/png"
+
+    }
+
+  ]
+
+}
+

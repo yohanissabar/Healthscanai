@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HealthScanAI - Premium Hub</title>  
+  <meta name="theme-color" content="#020617">
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  
+  <script src="https://cdn.tailwindcss.com"></script>  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="grid-bg">
+
+<div class="fixed top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none z-[-1]"></div>
+<div class="fixed bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-fuchsia-500/10 blur-[100px] rounded-full pointer-events-none z-[-1]"></div>
+
+<div id="installBanner" class="fixed top-4 left-4 right-4 z-[60] glass-strong rounded-2xl p-4 flex items-center justify-between hidden transform transition-transform translate-y-[-150%]">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-lg"><i data-lucide="download" class="text-white w-5 h-5"></i></div>
+    <div><h4 class="font-bold text-sm">Install HealthScanAI</h4><p class="text-[10px] text-slate-400">Akses offline & performa optimal</p></div>
+  </div>
+  <button onclick="installApp()" class="px-4 py-2 bg-white text-black text-xs font-bold rounded-full">Install</button>
+</div>
+
+<header class="sticky top-0 z-40 glass-soft border-b border-white/5">
+  <div class="max-w-md mx-auto px-5 py-2 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <img src="icon-512.png" alt="HealthScanAI" class="w-16 h-16 object-contain shrink-0 drop-shadow-[0_0_12px_rgba(34,211,238,.35)]">
+      <div><h1 class="text-2xl font-black tracking-tight leading-none">HealthScan<span class="text-cyan-400">AI</span></h1></div>
+    </div>
+    <div class="flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+      <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
+      <span class="text-[9px] tracking-widest uppercase font-bold text-emerald-300">LIVE</span>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-md mx-auto w-full px-4 pt-6 pb-48">
+  <section id="view-dashboard" class="app-view active">
+    <div class="text-center mb-6">
+      <h2 class="text-3xl font-black tracking-tight mb-2">Smart <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Wellness</span></h2>
+      <p class="text-xs text-slate-400 max-w-[280px] mx-auto">Pantau kardio, stabilitas, & fokus harian dari genggaman Anda.</p>
+    </div>
+
+    <div class="glass-strong rounded-3xl p-5 mb-4 relative overflow-hidden group">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-cyan-500/20 to-transparent rounded-bl-full pointer-events-none"></div>
+      <div class="flex justify-between items-center mb-4 relative z-10">
+        <span class="text-[10px] uppercase font-bold tracking-widest text-cyan-400 flex items-center gap-1"><i data-lucide="scan-line" class="w-3 h-3"></i> Core Scan</span>
+        <span id="progressPercent" class="text-xs font-mono text-white/50">READY</span>
+      </div>
+      
+      <div id="cameraPreviewContainer" class="hidden relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-cyan-500 mx-auto mb-4 pulse-glow">
+        <video id="videoPreview" autoplay playsinline class="w-full h-full object-cover scale-150"></video>
+      </div>
+
+      <div class="w-full bg-black/40 rounded-full h-2 mb-3 overflow-hidden border border-white/5">
+        <div id="progressBar" class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full transition-all duration-200 ease-out" style="width: 0%"></div>
+      </div>
+      <p id="scannerMessage" class="text-[10px] text-slate-400 text-center mb-4 h-6">Ketuk tombol di bawah untuk memulai kalibrasi sensor.</p>
+      
+      <button id="btnScan" onclick="startVascularScan()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 font-bold text-sm shadow-lg shadow-cyan-500/25 active:scale-95 transition-transform flex items-center justify-center gap-2">
+        <i data-lucide="power" class="w-4 h-4"></i> START MEASUREMENT
+      </button>
+    </div>
+
+    <div class="glass rounded-2xl p-4 mb-6">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">PPG Signal</span>
+        <div id="liveLabel" class="w-2 h-2 rounded-full bg-slate-600"></div>
+      </div>
+      <div class="h-16 w-full"><canvas id="waveChart"></canvas></div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mb-6">
+      <div class="glass rounded-2xl p-4 flex flex-col justify-between"><div class="flex items-center gap-2 mb-2"><i data-lucide="heart" class="w-4 h-4 text-rose-400 heartbeat"></i> <span class="text-[10px] font-bold text-slate-400 tracking-wider">BPM</span></div><div class="flex items-baseline gap-1"><span id="heartRate" class="text-3xl font-black">--</span><span class="text-xs text-slate-500 font-mono">bpm</span></div></div>
+      <div class="glass rounded-2xl p-4 flex flex-col justify-between"><div class="flex items-center gap-2 mb-2"><i data-lucide="droplet" class="w-4 h-4 text-cyan-400"></i> <span class="text-[10px] font-bold text-slate-400 tracking-wider">SpO2</span></div><div class="flex items-baseline gap-1"><span id="spo2" class="text-3xl font-black">--</span><span class="text-xs text-slate-500 font-mono">%</span></div></div>
+      <div class="glass rounded-2xl p-4 flex flex-col justify-between"><div class="flex items-center gap-2 mb-2"><i data-lucide="brain" class="w-4 h-4 text-fuchsia-400"></i> <span class="text-[10px] font-bold text-slate-400 tracking-wider">STRESS</span></div><div class="flex items-baseline gap-1"><span id="stress" class="text-3xl font-black">--</span><span class="text-xs text-slate-500 font-mono">%</span></div></div>
+      <div class="glass rounded-2xl p-4 flex flex-col justify-between"><div class="flex items-center gap-2 mb-2"><i data-lucide="zap" class="w-4 h-4 text-amber-400"></i> <span class="text-[10px] font-bold text-slate-400 tracking-wider">ENERGY</span></div><div class="flex items-baseline gap-1"><span id="energy" class="text-3xl font-black">--</span><span class="text-xs text-slate-500 font-mono">%</span></div></div>
+    </div>
+  </section>
+
+  <section id="view-tests" class="app-view">
+    <div class="mb-4 flex items-center justify-between"><h2 class="text-xl font-black">Advanced <span class="text-fuchsia-400">Modules</span></h2></div>
+
+    <div class="space-y-3">
+      <div class="glass rounded-2xl overflow-hidden">
+        <button onclick="toggleCard('card-tremor')" class="w-full p-4 flex items-center justify-between bg-white/5 active:bg-white/10 transition-colors"><div class="flex items-center gap-3"><div class="p-2 rounded-lg bg-fuchsia-500/20 text-fuchsia-400"><i data-lucide="hand" class="w-4 h-4"></i></div><div class="text-left"><h4 class="font-bold text-sm">Tremor Stability</h4><p class="text-[10px] text-slate-400">Motorik halus & getaran</p></div></div><div class="flex items-center gap-2"><span id="valTremor" class="font-black text-fuchsia-400">--</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-500"></i></div></button>
+        <div id="card-tremor" class="hidden p-4 border-t border-white/5 bg-black/20"><p id="instTremor" class="text-[10px] text-slate-400 mb-3 text-center">Tahan ponsel diam mendatar di telapak tangan Anda.</p><button onclick="startTremorAnalysis()" id="btnTremor" class="w-full py-2.5 rounded-xl bg-fuchsia-500/20 text-fuchsia-300 text-xs font-bold active:scale-95 transition-all">MULAI TES</button></div>
+      </div>
+
+      <div class="glass rounded-2xl overflow-hidden">
+        <button onclick="toggleCard('card-resp')" class="w-full p-4 flex items-center justify-between bg-white/5 active:bg-white/10 transition-colors"><div class="flex items-center gap-3"><div class="p-2 rounded-lg bg-emerald-500/20 text-emerald-400"><i data-lucide="wind" class="w-4 h-4"></i></div><div class="text-left"><h4 class="font-bold text-sm">Resp. Scan</h4><p class="text-[10px] text-slate-400">Siklus napas via Mic</p></div></div><div class="flex items-center gap-2"><span id="valResp" class="font-black text-emerald-400">--</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-500"></i></div></button>
+        <div id="card-resp" class="hidden p-4 border-t border-white/5 bg-black/20"><p id="instResp" class="text-[10px] text-slate-400 mb-3 text-center">Hembuskan napas berirama ke mikrofon ponsel.</p><button onclick="startAudioRespiratoryScan()" id="btnAudio" class="w-full py-2.5 rounded-xl bg-emerald-500/20 text-emerald-300 text-xs font-bold active:scale-95 transition-all">MULAI TES</button></div>
+      </div>
+
+      <div class="glass rounded-2xl overflow-hidden">
+        <button onclick="toggleCard('card-cog')" class="w-full p-4 flex items-center justify-between bg-white/5 active:bg-white/10 transition-colors"><div class="flex items-center gap-3"><div class="p-2 rounded-lg bg-blue-500/20 text-blue-400"><i data-lucide="cpu" class="w-4 h-4"></i></div><div class="text-left"><h4 class="font-bold text-sm">Mental Focus</h4><p class="text-[10px] text-slate-400">Adaptif logik cepat</p></div></div><div class="flex items-center gap-2"><span id="valCognitive" class="font-black text-blue-400 text-xs">--</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-500"></i></div></button>
+        <div id="card-cog" class="hidden p-4 border-t border-white/5 bg-black/20"><div class="flex justify-between items-center bg-black/40 p-3 rounded-xl mb-3 border border-white/5"><span id="mathQuestion" class="font-mono text-sm font-bold text-white">? + ? =</span><input type="number" id="mathAnswer" class="w-16 h-8 bg-transparent border-b border-blue-500/50 text-center text-blue-400 font-bold outline-none" disabled placeholder="..."></div><button onclick="startCognitiveTest()" id="btnCognitive" class="w-full py-2.5 rounded-xl bg-blue-500/20 text-blue-300 text-xs font-bold active:scale-95 transition-all">MULAI TES LOGIKA</button></div>
+      </div>
+
+      <div class="glass rounded-2xl overflow-hidden">
+        <button onclick="toggleCard('card-vis')" class="w-full p-4 flex items-center justify-between bg-white/5 active:bg-white/10 transition-colors"><div class="flex items-center gap-3"><div class="p-2 rounded-lg bg-amber-500/20 text-amber-400"><i data-lucide="eye" class="w-4 h-4"></i></div><div class="text-left"><h4 class="font-bold text-sm">Visual Reflex</h4><p class="text-[10px] text-slate-400">Uji latensi respons</p></div></div><div class="flex items-center gap-2"><span id="valVisual" class="font-black text-amber-400 text-xs">--</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-500"></i></div></button>
+        <div id="card-vis" class="hidden p-4 border-t border-white/5 bg-black/20"><div id="visualBox" class="w-full h-[60px] rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xs text-slate-300 font-bold tracking-wider cursor-pointer active:scale-95 transition-all select-none">TAP TO START</div></div>
+      </div>
+
+      <div class="glass rounded-2xl p-4">
+        <div class="flex items-center gap-3 mb-3"><div class="p-2 rounded-lg bg-teal-500/20 text-teal-400"><i data-lucide="scale" class="w-4 h-4"></i></div><div class="text-left flex-1"><h4 class="font-bold text-sm">Kalkulator BMI</h4><p id="statusBmi" class="text-[10px] text-slate-400">Status: --</p></div><span id="valBmi" class="font-black text-teal-400">--</span></div>
+        <div class="flex gap-2 mb-2">
+          <input type="number" id="inputBerat" placeholder="Berat (kg)" class="w-1/2 bg-black/30 border border-white/10 rounded-lg text-center text-xs p-2 outline-none focus:border-teal-500">
+          <input type="number" id="inputTinggi" placeholder="Tinggi (cm)" class="w-1/2 bg-black/30 border border-white/10 rounded-lg text-center text-xs p-2 outline-none focus:border-teal-500">
+        </div>
+        <button onclick="calculateBMI()" class="w-full py-2 rounded-lg bg-white/5 text-slate-300 text-[10px] font-bold active:bg-white/10 transition-colors">HITUNG</button>
+      </div>
+
+      <div class="glass rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-3"><div class="flex items-center gap-3"><div class="p-2 rounded-lg bg-pink-500/20 text-pink-400"><i data-lucide="palette" class="w-4 h-4"></i></div><div class="text-left"><h4 class="font-bold text-sm">Tes Pola Warna</h4><p class="text-[10px] text-slate-400">Identifikasi Angka</p></div></div><span id="valColorBlind" class="font-black text-pink-400 text-xs">--</span></div>
+        <div class="flex gap-3 items-center">
+          <div class="w-20 h-14 rounded-lg overflow-hidden relative bg-black/50 border border-white/10 shrink-0"><canvas id="cbCanvas" class="w-full h-full object-cover"></canvas><div id="cbPlaceholder" class="absolute inset-0 flex items-center justify-center font-black text-xl text-slate-600 select-none">?</div></div>
+          <div class="flex flex-col gap-1 flex-1"><input type="number" id="cbInput" placeholder="Angka..." class="w-full bg-black/30 border border-white/10 rounded-lg text-center text-xs p-2 outline-none focus:border-pink-500" disabled><button onclick="submitColorBlind()" id="btnCb" class="w-full py-1.5 rounded-lg bg-pink-500/20 text-pink-300 text-[10px] font-bold active:bg-pink-500/30">MULAI</button></div>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-4">
+        <div class="flex items-center gap-3 mb-3"><div class="p-2 rounded-lg bg-indigo-500/20 text-indigo-400"><i data-lucide="headphones" class="w-4 h-4"></i></div><div class="text-left"><h4 class="font-bold text-sm">Ambang Suara</h4><p class="text-[10px] text-slate-400">Gunakan headset</p></div></div>
+        <div class="grid grid-cols-2 gap-2 mb-3"><div class="bg-black/30 rounded-lg p-2 text-center border border-white/5"><div class="text-[9px] text-slate-500 mb-1">Kiri</div><div class="text-xs font-bold" id="statusAudioKiri">-</div></div><div class="bg-black/30 rounded-lg p-2 text-center border border-white/5"><div class="text-[9px] text-slate-500 mb-1">Kanan</div><div class="text-xs font-bold" id="statusAudioKanan">-</div></div></div>
+        <div id="audioVisualizer" class="h-4 bg-black/50 rounded-full overflow-hidden relative border border-white/5 mb-3"><div id="audioProgress" class="absolute left-0 top-0 h-full bg-indigo-500/50 transition-all" style="width: 0%;"></div></div>
+        <div class="flex gap-2">
+          <button onclick="startAudiometry('Left')" id="btnAudioLeft" class="flex-1 bg-white/5 py-2 rounded-lg text-[10px] font-bold text-slate-300 active:bg-white/10">TES KIRI</button>
+          <button onclick="startAudiometry('Right')" id="btnAudioRight" class="flex-1 bg-white/5 py-2 rounded-lg text-[10px] font-bold text-slate-300 active:bg-white/10">TES KANAN</button>
+          <button onclick="recordAudioHear()" id="btnAudioHear" class="flex-[2] bg-emerald-500/20 text-emerald-400 py-2 rounded-lg text-[10px] font-bold hidden shadow-[0_0_10px_rgba(16,185,129,0.2)]">SAYA MENDENGARNYA!</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-insight" class="app-view">
+    <div class="mb-4 flex items-center justify-between"><h2 class="text-xl font-black">AI <span class="text-amber-400">Insights</span></h2></div>
+    <div class="glass-strong rounded-3xl p-5 mb-5 border border-amber-500/20 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-bl-full blur-xl"></div>
+      <div class="flex items-center gap-2 mb-3 relative z-10"><i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i> <span class="text-xs font-bold text-amber-400 tracking-wider">HEALTH ADVISOR</span></div>
+      <p id="defaultAiText" class="text-xs text-slate-400 italic">Selesaikan pemindaian sinyal tubuh untuk mengaktifkan AI Engine.</p>
+      <div id="aiRecommendationBox" class="hidden"><p id="aiRecommendationText" class="text-sm text-slate-200 leading-relaxed"></p></div>
+    </div>
+
+    <div class="bg-gradient-to-br from-slate-800 to-black rounded-2xl p-4 border border-white/5 mb-5 flex items-center gap-4 relative overflow-hidden">
+      <span class="absolute top-1 right-2 text-[8px] text-slate-500 uppercase tracking-widest">Sponsored</span>
+      <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center shrink-0"><i data-lucide="box" class="w-5 h-5 text-slate-400"></i></div>
+      <div><h4 class="text-xs font-bold text-white mb-0.5">Asuransi SmartHealth</h4><p class="text-[10px] text-slate-400 mb-2">Perlindungan ekstra untuk pengguna proaktif.</p><button class="text-[10px] bg-white text-black px-3 py-1 rounded font-bold">Pelajari</button></div>
+    </div>
+
+    <div class="glass rounded-2xl p-5 border border-white/5">
+      <h4 class="font-bold text-sm mb-1 flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4"></i> Identitas & Laporan</h4>
+      <p class="text-[10px] text-slate-400 mb-3">Isi nama untuk dicetak pada laporan PDF</p>
+      <input type="text" id="inputUserName" placeholder="Nama Anda..." class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-cyan-500 transition-colors mb-3">
+      <button onclick="generateNativePDF()" class="w-full py-3.5 rounded-xl border border-white/10 bg-white/5 active:bg-white/10 transition-colors text-sm font-bold flex items-center justify-center gap-2">
+        <i data-lucide="download" class="w-4 h-4"></i> EXPORT LAPORAN PDF
+      </button>
+    </div>
+  </section>
+</main>
+
+<nav class="fixed bottom-4 left-4 right-4 max-w-md mx-auto z-50 glass-strong rounded-3xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.8)] px-2 py-0.5">
+  <div class="flex justify-around items-center">
+    <button onclick="switchTab('view-dashboard', this)" class="nav-item active relative p-3 flex flex-col items-center gap-1 w-16"><i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="text-[9px] font-bold">Scan</span><div class="nav-indicator"></div></button>
+    <button onclick="switchTab('view-tests', this)" class="nav-item relative p-3 flex flex-col items-center gap-1 w-16"><i data-lucide="stethoscope" class="w-5 h-5"></i><span class="text-[9px] font-bold">Tests</span><div class="nav-indicator"></div></button>
+    <button onclick="switchTab('view-insight', this)" class="nav-item relative p-3 flex flex-col items-center gap-1 w-16"><i data-lucide="sparkles" class="w-5 h-5"></i><span class="text-[9px] font-bold">Insight</span><div class="nav-indicator"></div></button>
+  </div>
+</nav>
+
+<canvas id="canvas" width="64" height="64" class="hidden"></canvas>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
