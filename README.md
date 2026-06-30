@@ -26,7 +26,7 @@ Sebagian besar aplikasi pemantauan kesehatan modern terjebak dalam dua masalah b
 
 | Modul Tes | Sensor yang Digunakan | Target Skrining |
 | :--- | :--- | :--- |
-| **Core Pulse Scan** | Kamera Depan/Belakang (PPG) | Estimasi Detak Jantung (BPM) & Saturasi $SpO_2$ |
+| **Core Pulse Scan** | Kamera Depan/Belakang (PPG) | BPM; PI; Stres; Energi; HRV;Repirasi |
 | **Tremor Analysis** | Device Accelerometer | Skrining kelelahan otot & indikasi awal Parkinson |
 | **Respiratory Rate** | Mikrofon / Tap Cadence | Menghitung siklus pernapasan per menit |
 | **Cognitive Reflex** | Visual UI Response | Mengukur waktu reaksi sistem saraf pusat (ms) |
