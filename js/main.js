@@ -35,8 +35,3 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('✔ HealthScanAI Modular Engine Ready.');
 });
 
-// Impor fungsi Anda (sesuaikan path-nya jika perlu)
-import { generateNativePDF } from './pdf-report.js'; 
-
-// Pasang fungsi ke window agar bisa dipanggil oleh tombol onclick
-window.generateNativePDF = generateNativePDF;
