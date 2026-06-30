@@ -1,4 +1,3 @@
-
 import { Store } from './store.js';
 import { triggerHaptic } from './utils.js';
 
@@ -8,18 +7,18 @@ import { triggerHaptic } from './utils.js';
 function calculateHealthScore(S) {
   let score = 100;
 
-  if (S.savedBpm && (S.savedBpm < 60 || S.savedBpm > 100)) score -= 10;
-  if (S.savedStress && S.savedStress > 60) score -= 15;
-  if (S.savedEnergy && S.savedEnergy < 50) score -= 10;
-  if (S.savedHrv && S.savedHrv < 20) score -= 10;
-  if (S.savedRr && (S.savedRr < 12 || S.savedRr > 20)) score -= 10;
-  if (S.savedBmi && (S.savedBmi < 18.5 || S.savedBmi > 24.9)) score -= 15;
-  if (S.savedTremor && S.savedTremor < 70) score -= 5;
-  if (S.savedVisual && S.savedVisual > 300) score -= 5;
-  if (S.savedCognitive && S.savedCognitive > 3000) score -= 5;
+  if (S.savedBpm != null && (S.savedBpm < 60 || S.savedBpm > 100)) score -= 10;
+  if (S.savedStress != null && S.savedStress > 60) score -= 15;
+  if (S.savedEnergy != null && S.savedEnergy < 50) score -= 10;
+  if (S.savedHrv != null && S.savedHrv < 20) score -= 10;
+  if (S.savedRr != null && (S.savedRr < 12 || S.savedRr > 20)) score -= 10;
+  if (S.savedBmi != null && (S.savedBmi < 18.5 || S.savedBmi > 24.9)) score -= 15;
 
-  if (score < 0) score = 0;
-  return score;
+  if (S.savedTremor != null && S.savedTremor < 70) score -= 5;
+  if (S.savedVisual != null && S.savedVisual > 300) score -= 5;
+  if (S.savedCognitive != null && S.savedCognitive > 3000) score -= 5;
+
+  return Math.max(score, 0);
 }
 
 function getHealthStatus(score) {
@@ -34,26 +33,14 @@ function getHealthStatus(score) {
 function generateLocalInsight(S) {
   const tips = [];
 
-  if (S.savedBpm > 100)
-    tips.push("Detak jantung tinggi, disarankan istirahat.");
+  if (S.savedBpm > 100) tips.push("Detak jantung tinggi.");
+  if (S.savedStress > 60) tips.push("Stres tinggi.");
+  if (S.savedEnergy < 50) tips.push("Energi rendah.");
+  if (S.savedHrv < 20) tips.push("HRV rendah.");
+  if (S.savedRr > 20) tips.push("Respirasi cepat.");
+  if (S.savedBmi >= 25) tips.push("BMI tinggi.");
 
-  if (S.savedStress > 60)
-    tips.push("Tingkat stres tinggi, lakukan relaksasi.");
-
-  if (S.savedEnergy < 50)
-    tips.push("Energi rendah, perbaiki pola istirahat.");
-
-  if (S.savedHrv < 20)
-    tips.push("HRV rendah, indikasi kelelahan.");
-
-  if (S.savedRr > 20)
-    tips.push("Respirasi tinggi, coba tenangkan napas.");
-
-  if (S.savedBmi >= 25)
-    tips.push("BMI di atas normal, kontrol pola makan.");
-
-  if (tips.length === 0)
-    tips.push("Semua parameter dalam kondisi stabil.");
+  if (tips.length === 0) tips.push("Semua parameter dalam kondisi stabil.");
 
   return tips.join("\n\n");
 }
@@ -69,7 +56,7 @@ function addFooter(doc) {
   doc.setTextColor(120);
 
   doc.text(
-    "DISCLAIMER: Laporan ini bukan rekam medis dan tidak dapat digunakan untuk diagnosis klinis. Ini hanya alat pemantauan wellness.",
+    "DISCLAIMER: Dokumen ini bukan rekam medis dan tidak dapat digunakan untuk diagnosis klinis. Ini hanya alat pemantauan wellness.",
     14,
     282,
     { maxWidth: 180 }
@@ -100,32 +87,32 @@ export function generateNativePDF() {
 
     const logo = new Image();
     logo.src = "icon-512.png";
-    doc.addImage(logo, "PNG", 80, 40, 50, 50);
+    doc.addImage(logo, "PNG", 80, 35, 50, 50);
 
     doc.setFont("helvetica", "bold");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(20);
-    doc.text("HealthScanAI Report", 105, 105, { align: "center" });
+    doc.text("HealthScanAI Report", 105, 100, { align: "center" });
 
     const score = calculateHealthScore(S);
     const status = getHealthStatus(score);
 
     doc.setFontSize(40);
     doc.setTextColor(...status.color);
-    doc.text(`${score}`, 105, 135, { align: "center" });
+    doc.text(`${score}`, 105, 130, { align: "center" });
 
     doc.setFontSize(12);
-    doc.text(`HEALTH SCORE: ${status.text}`, 105, 145, { align: "center" });
+    doc.text(`HEALTH SCORE: ${status.text}`, 105, 140, { align: "center" });
 
     doc.setFontSize(10);
     doc.setTextColor(180);
-    doc.text(`User: ${name}`, 105, 160, { align: "center" });
-    doc.text(new Date().toLocaleString(), 105, 168, { align: "center" });
+    doc.text(`User: ${name}`, 105, 155, { align: "center" });
+    doc.text(new Date().toLocaleString(), 105, 165, { align: "center" });
 
     addFooter(doc);
 
     /* =========================
-       PAGE 1 - SUMMARY
+       PAGE 1 - SUMMARY (11 ITEMS)
     ========================= */
     doc.addPage();
 
@@ -135,12 +122,13 @@ export function generateNativePDF() {
 
     const rows = [
       ["Heart Rate", S.savedBpm ?? "--", "60–100"],
-      ["PI", S.savedPi ?? "--", "0.2–20"],
+      ["Perfusion Index (PI)", S.savedPi ?? "--", "0.2–20"],
       ["HRV", S.savedHrv ?? "--", ">20"],
       ["Respiration", S.savedRr ?? "--", "12–20"],
       ["Stress", S.savedStress ?? "--", "<50%"],
       ["Energy", S.savedEnergy ?? "--", ">=70%"],
-      ["BMI", S.savedBmi ?? "--", "18.5–24.9"]
+      ["BMI", S.savedBmi ?? "--", "18.5–24.9"],
+
       ["Tremor Stability", S.savedTremor ?? "--", ">80%"],
       ["Visual Reflex", S.savedVisual ?? "--", "<300 ms"],
       ["Cognitive Speed", S.savedCognitive ?? "--", "<3000 ms"],
@@ -153,7 +141,7 @@ export function generateNativePDF() {
         head: [["Parameter", "Nilai", "Normal"]],
         body: rows,
         theme: "grid",
-        styles: { fontSize: 10 }
+        styles: { fontSize: 9 }
       });
     }
 
@@ -196,9 +184,11 @@ export function generateNativePDF() {
     }
 
     const signal = S.globalSmoothedSignal || [];
-    let amp = signal.length > 1
-      ? Math.max(...signal) - Math.min(...signal)
-      : 0;
+
+    const amp =
+      signal.length > 1
+        ? Math.max(...signal) - Math.min(...signal)
+        : 0;
 
     doc.text(`Amplitudo: ${amp.toFixed(2)}`, 14, 105);
 
@@ -212,7 +202,7 @@ export function generateNativePDF() {
     addFooter(doc);
 
     /* =========================
-       PAGE 3 - AUDIO
+       PAGE 3 - AUDIO + CLASS
     ========================= */
     doc.addPage();
 
@@ -238,19 +228,17 @@ export function generateNativePDF() {
 
     let y2 = doc.lastAutoTable?.finalY + 10 || 80;
 
-    const classTable = [
-      ["0–25 dB", "Normal", "Pendengaran baik"],
-      ["26–40 dB", "Ringan", "Kesulitan ringan"],
-      [">40 dB", "Risiko", "Perlu evaluasi"]
-    ];
-
     doc.setFont("helvetica", "bold");
     doc.text("Klasifikasi Ambang Batas", 14, y2);
 
     doc.autoTable({
       startY: y2 + 5,
       head: [["Rentang", "Kategori", "Keterangan"]],
-      body: classTable,
+      body: [
+        ["0–25 dB", "Normal", "Pendengaran baik"],
+        ["26–40 dB", "Ringan", "Kesulitan ringan"],
+        [">40 dB", "Risiko", "Perlu evaluasi"]
+      ],
       styles: { fontSize: 9 }
     });
 
