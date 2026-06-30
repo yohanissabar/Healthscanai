@@ -20,7 +20,7 @@ export async function processAiMedicalAdvice(bpm, pi, stress) {
     try {
         // Asumsi fungsi fetch ke API Gemini Anda
         // Ganti dengan endpoint atau method fetch milik Anda
-        const response = await fetch('YOUR_GEMINI_API_ENDPOINT', {
+        const response = await fetch('/api/gemini', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt: prompt })
