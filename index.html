@@ -86,6 +86,8 @@
       <div class="glass rounded-2xl p-4 flex flex-col justify-between"><div class="flex items-center gap-2 mb-2"><i data-lucide="droplet" class="w-4 h-4 text-cyan-400"></i> <span class="text-[10px] font-bold text-slate-400 tracking-wider">PI</span></div><div class="flex items-baseline gap-1"><span id="pi" class="text-3xl font-black">--</span><span class="text-xs text-slate-500 font-mono">%</span></div></div>
       <div class="glass rounded-2xl p-4 flex flex-col justify-between"><div class="flex items-center gap-2 mb-2"><i data-lucide="brain" class="w-4 h-4 text-fuchsia-400"></i> <span class="text-[10px] font-bold text-slate-400 tracking-wider">STRESS</span></div><div class="flex items-baseline gap-1"><span id="stress" class="text-3xl font-black">--</span><span class="text-xs text-slate-500 font-mono">%</span></div></div>
       <div class="glass rounded-2xl p-4 flex flex-col justify-between"><div class="flex items-center gap-2 mb-2"><i data-lucide="zap" class="w-4 h-4 text-amber-400"></i> <span class="text-[10px] font-bold text-slate-400 tracking-wider">ENERGY</span></div><div class="flex items-baseline gap-1"><span id="energy" class="text-3xl font-black">--</span><span class="text-xs text-slate-500 font-mono">%</span></div></div>
+      <div class="glass rounded-2xl p-4 flex flex-col justify-between"><div class="flex items-center gap-2 mb-2"><i data-lucide="activity" class="w-4 h-4 text-rose-400"></i> <span class="text-[10px] font-bold text-slate-400 tracking-wider">HRV</span></div><div class="flex items-baseline gap-1"><span id="txt-hrv" class="text-3xl font-black">--</span><span class="text-xs text-slate-500 font-mono">ms</span></div></div>
+      <div class="glass rounded-2xl p-4 flex flex-col justify-between"><div class="flex items-center gap-2 mb-2"><i data-lucide="wind" class="w-4 h-4 text-cyan-400"></i> <span class="text-[10px] font-bold text-slate-400 tracking-wider">RESP</span></div><div class="flex items-baseline gap-1"><span id="txt-respiration" class="text-3xl font-black">--</span><span class="text-xs text-slate-500 font-mono">x/m</span></div></div>
     </div>
   </section>
 
@@ -169,18 +171,16 @@
   </section>
 </main>
 
-<nav class="fixed bottom-4 left-4 right-4 max-w-md mx-auto z-50 glass-strong rounded-3xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.8)] px-2 py-0.5">
-  <div class="flex justify-around items-center">
-    <button onclick="switchTab('view-dashboard', this)" class="nav-item active relative p-3 flex flex-col items-center gap-1 w-16"><i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="text-[9px] font-bold">Scan</span><div class="nav-indicator"></div></button>
-    <button onclick="switchTab('view-tests', this)" class="nav-item relative p-3 flex flex-col items-center gap-1 w-16"><i data-lucide="stethoscope" class="w-5 h-5"></i><span class="text-[9px] font-bold">Tests</span><div class="nav-indicator"></div></button>
-    <button onclick="switchTab('view-insight', this)" class="nav-item relative p-3 flex flex-col items-center gap-1 w-16"><i data-lucide="sparkles" class="w-5 h-5"></i><span class="text-[9px] font-bold">Insight</span><div class="nav-indicator"></div></button>
-  </div>
-</nav>
+  <nav class="fixed bottom-4 left-4 right-4 max-w-md mx-auto z-50 glass-strong rounded-3xl border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.8)] px-2 py-0.5">
+    <div class="flex justify-around items-center">
+      <button onclick="switchTab('view-dashboard', this)" class="nav-item active relative p-3 flex flex-col items-center gap-1 w-16"><i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="text-[9px] font-bold">Scan</span><div class="nav-indicator"></div></button>
+      <button onclick="switchTab('view-tests', this)" class="nav-item relative p-3 flex flex-col items-center gap-1 w-16"><i data-lucide="stethoscope" class="w-5 h-5"></i><span class="text-[9px] font-bold">Tests</span><div class="nav-indicator"></div></button>
+      <button onclick="switchTab('view-insight', this)" class="nav-item relative p-3 flex flex-col items-center gap-1 w-16"><i data-lucide="sparkles" class="w-5 h-5"></i><span class="text-[9px] font-bold">Insight</span><div class="nav-indicator"></div></button>
+    </div>
+  </nav>
 
-<canvas id="canvas" width="64" height="64" class="hidden"></canvas>
-
-<script type="module" src="js/main.js"></script>
-
-  <script type="module" src="./js/main.js"></script>
+  <canvas id="canvas" width="64" height="64" class="hidden"></canvas>
+  
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
