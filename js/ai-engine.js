@@ -1,30 +1,38 @@
+// js/ai-engine.js
 import { Store } from './store.js';
 
-export function processAiMedicalAdvice(bpm, spo2, stress) {
-  const defaultText = document.getElementById('defaultAiText');
-  const box = document.getElementById('aiRecommendationBox');
-  const text = document.getElementById('aiRecommendationText');
-  
-  if (defaultText) defaultText.style.display = 'none';
-  if (box) box.classList.remove('hidden');
+export async function processAiMedicalAdvice(bpm, pi, stress) {
+    // Update Store dengan data terbaru
+    Store.savedBpm = bpm;
+    Store.savedPi = pi;
+    Store.savedStress = stress;
 
-  let evaluasi = "", langkah = "";
-  if (spo2 < 96) { 
-    evaluasi = `Saturasi (${spo2}%) perlu ditingkatkan.`; 
-    langkah = "Latihan napas diafragma dan hidrasi tubuh cukup."; 
-  } else if (bpm > 100) { 
-    evaluasi = `Detak jantung istirahat tinggi (${bpm} BPM).`; 
-    langkah = "Kurangi paparan gadget sementara waktu, coba duduk santai."; 
-  } else if (stress > 50) { 
-    evaluasi = `Indeks ketegangan saraf meningkat (${stress}%).`; 
-    langkah = "Kurangi kafein, dan lakukan peregangan otot ringan."; 
-  } else { 
-    evaluasi = "Seluruh parameter primer optimal."; 
-    langkah = "Pertahankan kualitas pola tidur dan aktivitas harian."; 
-  }
-  
-  Store.rawAiAdvice = `Observasi: ${evaluasi} Saran Wellness: ${langkah}`;
-  if (text) {
-    text.innerHTML = `<span class="text-white font-bold block mb-1">Observasi:</span> ${evaluasi}<br><br><span class="text-white font-bold block mb-1">Action:</span> ${langkah}`;
-  }
+    const prompt = `
+        Analisis kesehatan untuk user:
+        - Detak Jantung: ${bpm} BPM
+        - Perfusion Index (PI): ${pi}%
+        - Indeks Stress: ${stress}%
+        
+        Berikan saran gaya hidup singkat, padat, dan informatif (maksimal 3 paragraf). 
+        Jangan gunakan format judul yang rumit. Fokus pada kesehatan kardiovaskular.
+    `;
+
+    try {
+        // Asumsi fungsi fetch ke API Gemini Anda
+        // Ganti dengan endpoint atau method fetch milik Anda
+        const response = await fetch('YOUR_GEMINI_API_ENDPOINT', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: prompt })
+        });
+        
+        const data = await response.json();
+        
+        // Simpan hasil ke Store (Sudah dibersihkan nanti di pdf-report.js)
+        Store.rawAiAdvice = data.advice || "Data kesehatan Anda dalam rentang normal. Tetap jaga pola makan dan istirahat yang cukup.";
+        
+    } catch (error) {
+        console.error("AI Engine Error:", error);
+        Store.rawAiAdvice = "Saat ini insight AI tidak dapat dimuat, namun secara umum, pastikan Anda tetap terhidrasi dan cukup istirahat.";
+    }
 }
