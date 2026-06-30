@@ -26,7 +26,7 @@ Sebagian besar aplikasi pemantauan kesehatan modern terjebak dalam dua masalah b
 
 | Modul Tes | Sensor yang Digunakan | Target Skrining |
 | :--- | :--- | :--- |
-| **Core Pulse Scan** | Kamera Depan/Belakang (PPG) | BPM; PI; Stres; Energi; HRV;Repirasi |
+| **Core Pulse Scan** | Kamera Depan/Belakang (PPG) | BPM; PI; Stres; Energi; HRV; Repirasi |
 | **Tremor Analysis** | Device Accelerometer | Skrining kelelahan otot & indikasi awal Parkinson |
 | **Respiratory Rate** | Mikrofon / Tap Cadence | Menghitung siklus pernapasan per menit |
 | **Cognitive Reflex** | Visual UI Response | Mengukur waktu reaksi sistem saraf pusat (ms) |
@@ -54,7 +54,7 @@ healthscan-ai/
 │   │   ├── bmi.js
 │   │   ├── audiometry.js
 │   │   └── colorblind.js
-│   ├── ai-engine.js          <-- Mesin agregator penyusun kesimpulan medis
+│   ├── ai-engine.js          <-- Mesin agregator penyusun kesimpulan atau rekomendasi
 │   ├── scanner.js            <-- Core Kamera & pemrosesan piksel merah (rPPG)
 │   ├── pdf-report.js         <-- Generator dokumen medik berstandar tabel
 │   ├── store.js              <-- State Management lokal berbasis Proxy/Object
