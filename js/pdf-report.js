@@ -141,6 +141,10 @@ export function generateNativePDF() {
       ["Stress", S.savedStress ?? "--", "<50%"],
       ["Energy", S.savedEnergy ?? "--", ">=70%"],
       ["BMI", S.savedBmi ?? "--", "18.5–24.9"]
+      ["Tremor Stability", S.savedTremor ?? "--", ">80%"],
+      ["Visual Reflex", S.savedVisual ?? "--", "<300 ms"],
+      ["Cognitive Speed", S.savedCognitive ?? "--", "<3000 ms"],
+      ["Colorblind Test", S.savedColorBlind ?? "--", "3/3"]
     ];
 
     if (doc.autoTable) {
