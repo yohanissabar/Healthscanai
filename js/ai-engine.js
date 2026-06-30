@@ -8,6 +8,7 @@ export async function processAiMedicalAdvice(bpm, pi, stress) {
     Store.savedStress = stress;
 
     const prompt = `
+        Bertindaklah sebagai asisten kebugaran ahli.
         Analisis kesehatan untuk user:
         - Detak Jantung: ${bpm} BPM
         - Perfusion Index (PI): ${pi}%
