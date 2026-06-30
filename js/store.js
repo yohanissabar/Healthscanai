@@ -1,26 +1,12 @@
 // js/store.js
+
 export const Store = {
-    // Data Sensor V1.0.1
-    savedBpm: "--",
-    savedPi: "--",       // Menggantikan savedSpo2
-    savedHrv: "--",      // Baru: untuk nilai RMSSD
-    savedStress: "--",
-    savedEnergy: "--",
-    
-    // Data Tambahan
-    savedTremor: "--",
-    savedResp: "--",
-    savedVisual: "--",
-    savedCognitive: "--",
-    savedBmi: "--",
-    savedColorBlind: "--",
-    
-    // Status & Logic
-    isAudiometryDone: { Left: false, Right: false },
-    audiometryResults: { Left: {}, Right: {} },
-    audioFreqList: [125, 250, 500, 1000, 2000, 4000, 8000],
-    
-    // AI & System
-    rawAiAdvice: "",
-    globalSmoothedSignal: []
+    savedBpm: 0,
+    savedPi: 0,
+    savedStress: 0,
+    savedEnergy: 0,
+    savedHrv: 0,
+    savedRr: 0,
+    globalSmoothedSignal: [],
+    rawAiAdvice: "Menunggu hasil scan..."
 };

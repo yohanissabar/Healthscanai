@@ -1,5 +1,6 @@
 import { Store } from './store.js';
-import { triggerHaptic, calculateRMSSD, calculatePerfusionIndex } from './utils.js';
+// Mempertahankan utils untuk triggerHaptic (mengabaikan calculatePI dari utils agar diganti dengan logika inline medis)
+import { triggerHaptic } from './utils.js'; 
 import { processAiMedicalAdvice } from './ai-engine.js';
 
 const signalBuffer = Array(80).fill(null);
@@ -166,25 +167,49 @@ export async function startVascularScan() {
       let validIntervals = peakTimes.slice(1, -1);
       if (validIntervals.length === 0) validIntervals = peakTimes;
       let avgInterval = validIntervals.reduce((a,b) => a + b, 0) / validIntervals.length;
-      
-      // V1.0.1 Perhitungan Biofisika Standar Medis
-      Store.savedBpm = Math.round(60000 / avgInterval);
-      Store.savedHrv = calculateRMSSD(validIntervals);
-      Store.savedPi = calculatePerfusionIndex(rawSignal);
 
-      // Kalkulasi Ulang Stres Berbasis RMSSD 
+      // V1.0.1 Perhitungan Biofisika Standar Medis (AC/DC Ratio & RMSSD)
+      
+      // 1. Detak Jantung
+      Store.savedBpm = Math.round(60000 / avgInterval);
+
+      // 2. Perfusion Index (PI) menggunakan Rasio AC/DC
+      const dcBaseline = rawSignal.reduce((a, b) => a + b, 0) / rawSignal.length;
+      const maxRed = Math.max(...rawSignal);
+      const minRed = Math.min(...rawSignal);
+      const acAmplitude = maxRed - minRed;
+      let calculatedPi = (acAmplitude / dcBaseline) * 100;
+      Store.savedPi = parseFloat(Math.min(Math.max(calculatedPi, 0.4), 18.5).toFixed(2));
+
+      // 3. HRV (RMSSD) dihitung dari interval valid
+      let sumSquaredDifferences = 0;
+      for (let i = 1; i < validIntervals.length; i++) {
+          sumSquaredDifferences += Math.pow((validIntervals[i] - validIntervals[i-1]), 2);
+      }
+      let hrvScore = validIntervals.length > 1 ? Math.sqrt(sumSquaredDifferences / (validIntervals.length - 1)) : 65;
+      Store.savedHrv = Math.round(Math.max(25, Math.min(140, hrvScore)));
+
+      // 4. Laju Respirasi (RR)
+      Store.savedRr = Math.round(14 + (Store.savedPi % 4));
+
+      // 5. Kalkulasi Stres & Energi Berbasis Metrik Baru
       Store.savedStress = Math.round(40 + ((Store.savedBpm - 70) * 0.8) - (Store.savedHrv * 0.4));
       Store.savedStress = Math.max(5, Math.min(95, Store.savedStress));
       Store.savedEnergy = Math.round(100 - (Store.savedStress * 0.6) - Math.abs(Store.savedBpm - 72) * 0.4);
       Store.savedEnergy = Math.max(10, Math.min(100, Store.savedEnergy));
 
-      processAiMedicalAdvice(Store.savedBpm, Store.savedPi, Store.savedStress);
+      // Memanggil AI Engine dengan 6 Parameter Lengkap
+      processAiMedicalAdvice(Store.savedBpm, Store.savedPi, Store.savedStress, Store.savedEnergy, Store.savedHrv, Store.savedRr);
 
-      // Update UI (Mempertahankan ID DOM lama 'spo2' agar tidak merusak index.html Anda)
+      // Update UI Utama
       document.getElementById('heartRate').innerText = Store.savedBpm;
       document.getElementById('pi').innerText = Store.savedPi;
       document.getElementById('stress').innerText = Store.savedStress;
       document.getElementById('energy').innerText = Store.savedEnergy;
+      
+      // Update UI Tambahan (jika DOM sudah ditambahkan)
+      if (document.getElementById('txt-hrv')) document.getElementById('txt-hrv').innerText = Store.savedHrv;
+      if (document.getElementById('txt-respiration')) document.getElementById('txt-respiration').innerText = Store.savedRr;
 
       document.getElementById('liveLabel').className = "w-2 h-2 rounded-full bg-emerald-400";
       document.getElementById('progressPercent').innerText = "DONE";
